@@ -2,17 +2,16 @@
 
 /**
  * @copyright   ©2025 Maatify.dev
- * @Liberary    slim-logger
+ * @Library     slim-logger
  * @Project     slim-logger
- * @author      Mohamed Abdulalim (megyptm) <mohamed@maatify.dev>
+ * @author      Mohamed Abdulalim (megyptm)
+ * @link        https://github.com/Maatify/slim-logger
  * @since       2025-04-17 4:07 PM
- * @see         https://www.maatify.dev Maatify.com
- * @link        https://github.com/Maatify/slim-logger  view project on GitHub
+ * @see         https://www.maatify.dev
  *
  * @note        This program is distributed in the hope that it will be useful - WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
  * FITNESS FOR A PARTICULAR PURPOSE.
- *
  */
 
 declare(strict_types=1);
@@ -34,8 +33,9 @@ class Logger
         $this->extension = $extension;
     }
 
-    public function record(Throwable|string|array $message, ServerRequestInterface $request = null, string $logFile = 'app'): void
+    public function record(Throwable|string|array $message, ServerRequestInterface $request = null, string $logFile = 'app', string $level = 'info'): void
     {
+        $level = strtolower($level);
         $messageArray = [];
 
         if ($message instanceof Throwable) {
@@ -51,6 +51,8 @@ class Logger
         } else {
             $messageArray['log_details'] = ['message' => $message];
         }
+
+        $messageArray['level'] = $level;
 
         $messageArray['logger_info'] = [
             'timestamp' => time(),
@@ -70,15 +72,26 @@ class Logger
         $json = json_encode($messageArray, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
         $targetDir = $this->createFolderByDate($logFile);
-        $filename = $targetDir . '/' . $logFile . '_' . date("YmdH") . '.' . $this->extension;
+        $filename = $targetDir . '/'
+                    . $this->sanitizeFilename($logFile)
+                    . '_response_' . $level . '_' . date("YmdA") . '.' . $this->extension;
+
         file_put_contents($filename, $json . PHP_EOL, FILE_APPEND);
+    }
+
+    public function getLogFilePath(string $action, string $level = 'info', string $subFolder = 'app'): string
+    {
+        $level = strtolower($level);
+        return $this->logRoot . '/' . date('y/m/d') . '/' . $subFolder . '/'
+               . $this->sanitizeFilename($action)
+               . '_response_' . $level . '_' . date("Y-m-d-A") . '.' . $this->extension;
     }
 
     private function createFolderByDate(string $logFile): string
     {
         $path = $this->logRoot;
-
         $folders = [date('y'), date('m'), date('d')];
+
         if (str_contains($logFile, '/')) {
             $parts = explode('/', $logFile);
             array_pop($parts); // remove filename
@@ -101,8 +114,8 @@ class Logger
         }
     }
 
-    public function getLogFilePath(string $action, string $subFolder = 'post'): string
+    private function sanitizeFilename(string $name): string
     {
-        return $this->logRoot . '/' . date('y/m/d') . '/' . $subFolder . '/' . $action . '_response_' . date("Y-m-d-A") . '.' . $this->extension;
+        return preg_replace('/[^a-zA-Z0-9_\-]/', '_', $name);
     }
 }

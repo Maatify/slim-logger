@@ -1,17 +1,18 @@
-[pkg]: <https://packagist.org/packages/maatify/slim-logger>
-[pkg-stats]: <https://packagist.org/packages/maatify/slim-logger/stats>
-
 # Maatify Slim Logger
 
-![**Maatify.dev**](https://www.maatify.dev/assets/img/img/maatify_logo_white.svg)
 ---
+![**Maatify.dev**](https://www.maatify.dev/assets/img/img/maatify_logo_white.svg)
+
+---
+[pkg]: <https://packagist.org/packages/maatify/slim-logger>
+[pkg-stats]: <https://packagist.org/packages/maatify/slim-logger/stats>
 [![Current version](https://img.shields.io/packagist/v/maatify/slim-logger)][pkg]
 [![Packagist PHP Version Support](https://img.shields.io/packagist/php-v/maatify/slim-logger)][pkg]
 [![Monthly Downloads](https://img.shields.io/packagist/dm/maatify/slim-logger)][pkg-stats]
 [![Total Downloads](https://img.shields.io/packagist/dt/maatify/slim-logger)][pkg-stats]
 [![Stars](https://img.shields.io/packagist/stars/maatify/slim-logger)](https://github.com/maatify/slim-logger/stargazers)
 
-**MaatifySlimLogger** is a lightweight, PSR-7 compatible, Slim-friendly structured logger for PHP applications. It is part of the modular [Maatify](https://maatify.dev) ecosystem.
+**Maatify Slim Logger** is a lightweight, PSR-7 compatible, Slim-friendly structured logger for PHP applications. It is part of the modular [Maatify](https://maatify.dev) ecosystem.
 
 ---
 
@@ -19,8 +20,11 @@
 
 - ✅ PSR-7 request-aware logging (integrates with Slim Framework)
 - ✅ Logs to file in JSON format
+- ✅ Includes log **levels** (`info`, `debug`, `warning`, `error`)
+- ✅ File names include log level
 - ✅ Date-based folder structure
 - ✅ Automatically creates secure log directories
+- ✅ Works with Slim or pure PHP
 - ✅ No external dependencies (other than `psr/http-message`)
 
 ---
@@ -43,9 +47,8 @@ composer dump-autoload
 
 ## 🧱 Namespaces
 
-- Logger class: `Maatify\SlimLogger\Logger`
-- Path helper: `Maatify\Store\File\Path`
-
+- Logger class: `Maatify\SlimLogger\Log\Logger`
+- Path helper: `Maatify\SlimLogger\Store\File\Path`
 
 Autoloaded via PSR-4.
 
@@ -56,7 +59,7 @@ Autoloaded via PSR-4.
 ```
 maatify-slim-logger/
 ├── src/
-│   └── SlimLogger/
+│   └── Log/
 │       └── Logger.php
 │   └── Store/
 │       └── File/
@@ -68,20 +71,26 @@ maatify-slim-logger/
 ## ✅ How It Works
 
 `Logger`:
-- Writes **JSON-formatted** logs to files.
-- Organizes logs by date in nested folders (`/logs/yy/mm/dd/...`)
-- Supports optional logging of **PSR-7 HTTP request context**.
-- Works in **Slim** or **pure PHP**.
+- Writes logs as structured, pretty JSON.
+- Logs are saved hourly in files named like:
+
+```
+api_user_response_error_20250417AM.log
+```
+
+- Organizes logs by date into nested folders (`/logs/yy/mm/dd`)
+- Automatically includes request info if available (via PSR-7)
+- Can be used in Slim or pure PHP apps
 
 ---
 
 ## 💡 Usage for Slim Developers
 
-### 1. Inject or Instantiate Logger
+### 1. Instantiate Logger
 
 ```php
-use Maatify\SlimLogger\Logger;
-use Maatify\Store\File\Path;
+use Maatify\SlimLogger\Log\Logger;
+use Maatify\SlimLogger\Store\File\Path;
 
 $logger = new Logger(new Path(__DIR__));
 ```
@@ -90,22 +99,21 @@ $logger = new Logger(new Path(__DIR__));
 
 ```php
 $app->get('/log', function ($request, $response) use ($logger) {
-    $logger->record('User accessed log route.', $request, 'api/user/logs');
-
-    $response->getBody()->write("Log recorded.");
-    return $response;
+    $logger->record('User accessed log route.', $request, 'api/user/logs', 'info');
+    return $response->withStatus(200)->write("Log recorded.");
 });
 ```
 
 ---
 
-### 📝 What Gets Logged?
+### 📝 Example Log Structure
 
 ```json
 {
   "log_details": {
     "message": "User accessed log route."
   },
+  "level": "info",
   "logger_info": {
     "timestamp": 1713370000,
     "time": "2025-04-17 14:10:00"
@@ -127,15 +135,15 @@ $app->get('/log', function ($request, $response) use ($logger) {
 
 ## 🧩 Usage for Pure PHP Developers
 
-You can still use the logger outside Slim — just omit the request.
+You can still use the logger outside Slim — just skip the request.
 
 ### 1. Setup
 
 ```php
 require 'vendor/autoload.php';
 
-use Maatify\SlimLogger\Logger;
-use Maatify\Store\File\Path;
+use Maatify\SlimLogger\Log\Logger;
+use Maatify\SlimLogger\Store\File\Path;
 
 $logger = new Logger(new Path(__DIR__));
 ```
@@ -143,20 +151,18 @@ $logger = new Logger(new Path(__DIR__));
 ### 2. Record Logs
 
 ```php
-$logger->record('Something happened in pure PHP.', null, 'scripts/cronjob');
+$logger->record('Something happened in pure PHP.', null, 'scripts/cronjob', 'warning');
 ```
 
 ---
 
 ## ⚠️ Logging Exceptions
 
-The `record()` method handles exceptions and arrays:
-
 ```php
 try {
     throw new \Exception('Oops, something failed.');
 } catch (\Throwable $e) {
-    $logger->record($e, null, 'errors');
+    $logger->record($e, null, 'api/errors', 'error');
 }
 ```
 
@@ -164,26 +170,24 @@ try {
 
 ## 🔍 Log File Output
 
-Logs are saved like this:
+Logs are saved by level and date:
 
 ```
 /logs/
 └── 24/
     └── 04/
         └── 17/
-            └── api_user_logs_2024041713.log
+            └── api_user_response_error_20250417AM.log
 ```
-
-Each log file appends new records hourly (based on current hour like `2024041713`).
 
 ---
 
 ## ⚙️ Optional Configuration
 
-| Option      | Default        | Description                   |
-|-------------|----------------|-------------------------------|
-| `Path`      | `project/logs` | Base log directory            |
-| `Extension` | `.log`         | Log file extension (e.g. txt) |
+| Option      | Default        | Description                       |
+|-------------|----------------|-----------------------------------|
+| `Path`      | `project/logs` | Base directory for log storage    |
+| `Extension` | `.log`         | Log file extension (`log`, `txt`) |
 
 ### Example:
 
@@ -202,4 +206,5 @@ $logger = new Logger(new Path(__DIR__), 'txt');
 ## 🙋‍♂️ Questions or Feedback?
 
 - Open an issue on [GitHub](https://github.com/maatify/slim-logger)
-```
+
+---
