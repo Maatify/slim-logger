@@ -1,0 +1,57 @@
+{
+  "name": "maatify/slim-logger",
+  "description": "Slim-compatible structured logger with PSR-7 request support",
+  "version": "1.0.1",
+  "type": "library",
+  "keywords": [
+    "maatify",
+    "Logger",
+    "slim"
+  ],
+  "homepage": "https://github.com/Maatify/",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Mohamed Abdulalim",
+      "email": "mohamed@maatify.dev",
+      "homepage": "https://www.maatify.com/",
+      "role": "Backend Developer"
+    },
+    {
+      "name": "Ahmed Fawzy",
+      "email": "a.fawzy@maatify.dev",
+      "homepage": "https://www.maatify.com/",
+      "role": "Frontend Developer"
+    },
+    {
+      "name": "Mohaned Saeed Sami",
+      "email": "mohaned.saeed@maatify.dev",
+      "homepage": "https://www.maatify.com/",
+      "role": "Frontend Developer"
+    },
+    {
+      "name": "Ahmed Abdullah",
+      "email": "a.abdullah@maatify.dev",
+      "homepage": "https://www.maatify.com/",
+      "role": "Android Developer"
+    },
+    {
+      "name": "Elmokhtar Ahmed",
+      "email": "mokhtar@maatify.dev",
+      "homepage": "https://www.maatify.com/",
+      "role": "IOS Developer"
+    }
+  ],
+  "require": {
+    "php": ">=8.2.0",
+    "psr/http-message": "^1.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Maatify\\SlimLogger\\": "crs/",
+      "Maatify\\SlimLogger\\Log\\": "crs/Log/",
+      "Maatify\\SlimLogger\\Store\\File\\": "crs/Store/File/"
+
+    }
+  }
+}
