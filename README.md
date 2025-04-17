@@ -1,10 +1,11 @@
-[pkg]: <https://packagist.org/packages/maatify/slim-logger>
-[pkg-stats]: <https://packagist.org/packages/maatify/slim-logger/stats>
-
 # Maatify Slim Logger
 
-![**Maatify.dev**](https://www.maatify.dev/assets/img/img/maatify_logo_white.svg)
 ---
+![**Maatify.dev**](https://www.maatify.dev/assets/img/img/maatify_logo_white.svg)
+
+---
+[pkg]: <https://packagist.org/packages/maatify/slim-logger>
+[pkg-stats]: <https://packagist.org/packages/maatify/slim-logger/stats>
 [![Current version](https://img.shields.io/packagist/v/maatify/slim-logger)][pkg]
 [![Packagist PHP Version Support](https://img.shields.io/packagist/php-v/maatify/slim-logger)][pkg]
 [![Monthly Downloads](https://img.shields.io/packagist/dm/maatify/slim-logger)][pkg-stats]
