@@ -1,9 +1,15 @@
-[![Current version](https://img.shields.io/packagist/v/maatify/slim-logger)](https://packagist.org/packages/maatify/slim-logger)
-[![Packagist PHP Version Support](https://img.shields.io/packagist/php-v/maatify/logger)](https://packagist.org/packages/maatify/slim-logger)
-[![Monthly Downloads](https://img.shields.io/packagist/dm/maatify/slim-logger)](https://packagist.org/packages/maatify/slim-logger/stats)
-[![Total Downloads](https://img.shields.io/packagist/dt/maatify/slim-logger)](https://packagist.org/packages/maatify/slim-logger/stats)
+[pkg]: <https://packagist.org/packages/maatify/slim-logger>
+[pkg-stats]: <https://packagist.org/packages/maatify/slim-logger/stats>
 
 # Maatify Slim Logger
+
+![**Maatify.dev**](https://www.maatify.dev/assets/img/img/maatify_logo_white.svg)
+---
+[![Current version](https://img.shields.io/packagist/v/maatify/slim-logger)][pkg]
+[![Packagist PHP Version Support](https://img.shields.io/packagist/php-v/maatify/slim-logger)][pkg]
+[![Monthly Downloads](https://img.shields.io/packagist/dm/maatify/slim-logger)][pkg-stats]
+[![Total Downloads](https://img.shields.io/packagist/dt/maatify/slim-logger)][pkg-stats]
+[![Stars](https://img.shields.io/packagist/stars/maatify/slim-logger)](https://github.com/maatify/slim-logger/stargazers)
 
 **MaatifySlimLogger** is a lightweight, PSR-7 compatible, Slim-friendly structured logger for PHP applications. It is part of the modular [Maatify](https://maatify.dev) ecosystem.
 
