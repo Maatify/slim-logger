@@ -1,7 +1,7 @@
 {
   "name": "maatify/slim-logger",
   "description": "Slim-compatible structured logger with PSR-7 request support",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "type": "library",
   "keywords": [
     "maatify",
@@ -53,5 +53,16 @@
       "Maatify\\SlimLogger\\Store\\File\\": "crs/Store/File/"
 
     }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Maatify\\SlimLogger\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "test": "phpunit"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^10"
   }
 }
