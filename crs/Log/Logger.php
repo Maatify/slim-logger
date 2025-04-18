@@ -28,15 +28,24 @@ class Logger
     private string $logRoot;
     private string $extension;
 
+    public static function setInstance(self $logger): void
+    {
+        self::$instance = $logger;
+    }
+
     public function __construct(Path $path, string $extension = 'log')
     {
         $this->logRoot = $path->getLogRootPath();
         $this->extension = $extension;
     }
 
-    public function record(Throwable|string|array $message, ?ServerRequestInterface $request = null, string $logFile = 'app', string $level = 'info'): void
-    {
-        $level = strtolower($level);
+    public function record(
+        Throwable|string|array $message,
+        ?ServerRequestInterface $request = null,
+        string $logFile = 'app',
+        LogLevelEnum $level = LogLevelEnum::Info
+    ): void {
+        $levelValue = strtolower($level->value);
         $messageArray = [];
 
         if ($message instanceof Throwable) {
@@ -53,8 +62,7 @@ class Logger
             $messageArray['log_details'] = ['message' => $message];
         }
 
-        $messageArray['level'] = $level;
-
+        $messageArray['level'] = $levelValue;
         $messageArray['logger_info'] = [
             'timestamp' => time(),
             'time' => date("Y-m-d H:i:s"),
@@ -75,7 +83,7 @@ class Logger
         $targetDir = $this->createFolderByDate($logFile);
         $filename = $targetDir . '/'
                     . $this->sanitizeFilename($logFile)
-                    . '_response_' . $level . '_' . date("YmdA") . '.' . $this->extension;
+                    . '_response_' . $levelValue . '_' . date("YmdA") . '.' . $this->extension;
 
         file_put_contents($filename, $json . PHP_EOL, FILE_APPEND);
     }
@@ -84,10 +92,10 @@ class Logger
         Throwable|string|array $message,
         ?ServerRequestInterface $request = null,
         string $logFile = 'app',
-        string $level = 'info',
+        LogLevelEnum $level = LogLevelEnum::Info,
         string $extension = 'log'
     ): void {
-        if (is_null(self::$instance)) {
+        if (!isset(self::$instance)) {
             $basePath = dirname(__DIR__, 3); // Default root for logs
             self::$instance = new self(new \Maatify\SlimLogger\Store\File\Path($basePath), $extension);
         }
@@ -95,12 +103,12 @@ class Logger
         self::$instance->record($message, $request, $logFile, $level);
     }
 
-    public function getLogFilePath(string $action, string $level = 'info', string $subFolder = 'app'): string
+    public function getLogFilePath(string $action, LogLevelEnum $level = LogLevelEnum::Info, string $subFolder = 'app'): string
     {
-        $level = strtolower($level);
+        $levelValue = strtolower($level->value);
         return $this->logRoot . '/' . date('y/m/d') . '/' . $subFolder . '/'
                . $this->sanitizeFilename($action)
-               . '_response_' . $level . '_' . date("Y-m-d-A") . '.' . $this->extension;
+               . '_response_' . $levelValue . '_' . date("Y-m-d-A") . '.' . $this->extension;
     }
 
     private function createFolderByDate(string $logFile): string

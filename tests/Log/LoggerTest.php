@@ -1,21 +1,12 @@
 <?php
-/**
- * Created by Maatify.dev
- * User: Maatify.dev
- * Date: 2025-04-18
- * Time: 13:02
- * Project: slim-logger
- * IDE: PhpStorm
- * https://www.Maatify.dev
- */
 
 declare(strict_types=1);
-
 
 namespace Maatify\SlimLogger\Tests\Log;
 
 use PHPUnit\Framework\TestCase;
 use Maatify\SlimLogger\Log\Logger;
+use Maatify\SlimLogger\Log\LogLevelEnum;
 use Maatify\SlimLogger\Store\File\Path;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -25,22 +16,21 @@ class LoggerTest extends TestCase
 
     protected function setUp(): void
     {
-        // Important: logs directory ends up here due to Path logic
         $this->logDir = __DIR__ . '/temp_logs/logs';
-        if (! is_dir($this->logDir)) {
+        if (!is_dir($this->logDir)) {
             mkdir($this->logDir, 0777, true);
         }
     }
 
     protected function tearDown(): void
     {
-        $this->deleteDirectory(dirname($this->logDir)); // delete full temp_logs
+        $this->deleteDirectory(dirname($this->logDir));
     }
 
-    public function testLogsInfoMessageWithoutRequest()
+    public function testLogsInfoMessageWithoutRequest(): void
     {
         $logger = new Logger(new Path(dirname($this->logDir)));
-        $logger->record('Unit test info message', null, 'test/action', 'info');
+        $logger->record('Unit test info message', null, 'test/action', LogLevelEnum::Info);
 
         $expectedDir = $this->logDir . '/' . date('y/m/d') . '/test';
         $files = glob($expectedDir . '/*_info_*.log');
@@ -51,11 +41,11 @@ class LoggerTest extends TestCase
         $this->assertFileExists($filePath);
         $json = json_decode(file_get_contents($filePath), true);
 
-        $this->assertEquals('info', $json['level']);
-        $this->assertEquals('Unit test info message', $json['log_details']['message']);
+        $this->assertSame('info', $json['level']);
+        $this->assertSame('Unit test info message', $json['log_details']['message']);
     }
 
-    public function testLogsWithMockedRequest()
+    public function testLogsWithMockedRequest(): void
     {
         $request = $this->createMock(ServerRequestInterface::class);
         $request->method('getMethod')->willReturn('POST');
@@ -65,7 +55,7 @@ class LoggerTest extends TestCase
         $request->method('getHeaderLine')->willReturn('PHPUnit');
 
         $logger = new Logger(new Path(dirname($this->logDir)));
-        $logger->record(['event' => 'test'], $request, 'test/request', 'debug');
+        $logger->record(['event' => 'test'], $request, 'test/request', LogLevelEnum::Debug);
 
         $expectedDir = $this->logDir . '/' . date('y/m/d') . '/test';
         $files = glob($expectedDir . '/*_debug_*.log');
@@ -76,19 +66,39 @@ class LoggerTest extends TestCase
         $this->assertFileExists($filePath);
         $json = json_decode(file_get_contents($filePath), true);
 
-        $this->assertEquals('debug', $json['level']);
-        $this->assertEquals('POST', $json['request_info']['method']);
-        $this->assertEquals('PHPUnit', $json['request_info']['user_agent']);
+        $this->assertSame('debug', $json['level']);
+        $this->assertSame('POST', $json['request_info']['method']);
+        $this->assertSame('PHPUnit', $json['request_info']['user_agent']);
     }
+
+    public function testStaticLoggerWithEnum(): void
+    {
+        $logger = new Logger(new Path(dirname($this->logDir)));
+        Logger::setInstance($logger); // Inject test path
+
+        Logger::recordStatic(
+            'Logged using static with enum',
+            null,
+            'static/test/path',
+            LogLevelEnum::Warning
+        );
+
+        $expectedDir = $this->logDir . '/' . date('y/m/d') . '/static/test';
+        $files = glob($expectedDir . '/*_warning_*.log');
+
+        $this->assertNotEmpty($files, 'No warning log file found from static.');
+        $filePath = $files[0];
+
+        $json = json_decode(file_get_contents($filePath), true);
+        $this->assertSame('warning', $json['level']);
+    }
+
 
     private function deleteDirectory(string $dir): void
     {
-        if (! is_dir($dir)) {
-            return;
-        }
+        if (!is_dir($dir)) return;
 
-        $items = array_diff(scandir($dir), ['.', '..']);
-        foreach ($items as $item) {
+        foreach (array_diff(scandir($dir), ['.', '..']) as $item) {
             $path = "$dir/$item";
             is_dir($path) ? $this->deleteDirectory($path) : unlink($path);
         }
