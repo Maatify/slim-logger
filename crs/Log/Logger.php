@@ -34,7 +34,7 @@ class Logger
         $this->extension = $extension;
     }
 
-    public function record(Throwable|string|array $message, ServerRequestInterface $request = null, string $logFile = 'app', string $level = 'info'): void
+    public function record(Throwable|string|array $message, ?ServerRequestInterface $request = null, string $logFile = 'app', string $level = 'info'): void
     {
         $level = strtolower($level);
         $messageArray = [];
@@ -82,7 +82,7 @@ class Logger
 
     public static function recordStatic(
         Throwable|string|array $message,
-        ServerRequestInterface $request = null,
+        ?ServerRequestInterface $request = null,
         string $logFile = 'app',
         string $level = 'info',
         string $extension = 'log'
