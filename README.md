@@ -22,6 +22,198 @@
 
 - ✅ PSR-7 request-aware logging (integrates with Slim Framework)
 - ✅ Logs to file in JSON format
+- ✅ Includes log levels: `info`, `debug`, `warning`, `error`
+- ✅ File names include log level
+- ✅ Supports static logging via `recordStatic()`
+- ✅ Automatically creates secure log directories
+- ✅ Date-based folder structure
+- ✅ Works with Slim or pure PHP
+- ✅ No external dependencies (other than `psr/http-message`)
+
+---
+
+## 📦 Installation
+
+```bash
+composer require maatify/slim-logger
+```
+
+Then dump autoload if needed:
+
+```bash
+composer dump-autoload
+```
+
+---
+
+## 🧱 Namespaces
+
+- Logger class: `Maatify\SlimLogger\Log\Logger`
+- Path helper: `Maatify\SlimLogger\Store\File\Path`
+
+---
+
+## 📁 Folder Structure
+
+```
+maatify-slim-logger/
+├── src/
+│   └── Log/
+│       └── Logger.php
+│   └── Store/
+│       └── File/
+│           └── Path.php
+```
+
+---
+
+## ✅ How It Works
+
+`Logger` writes logs as structured, pretty JSON to disk.
+
+Log files are saved under:
+
+```
+/logs/yy/mm/dd/<path>_response_<level>_<timestamp>.log
+```
+
+Supports both Slim apps and plain PHP.
+
+---
+
+## 💡 Usage for Slim Developers
+
+### 1. Instantiate
+
+```php
+use Maatify\SlimLogger\Log\Logger;
+use Maatify\SlimLogger\Store\File\Path;
+
+$logger = new Logger(new Path(__DIR__));
+```
+
+### 2. Inside a Route
+
+```php
+$app->get('/log', function ($request, $response) use ($logger) {
+    $logger->record('User accessed logs.', $request, 'api/user/logs', 'info');
+    return $response->withStatus(200)->write("Log saved.");
+});
+```
+
+---
+
+## 🧩 Usage for Pure PHP Developers
+
+```php
+require 'vendor/autoload.php';
+
+use Maatify\SlimLogger\Log\Logger;
+use Maatify\SlimLogger\Store\File\Path;
+
+$logger = new Logger(new Path(__DIR__));
+$logger->record('Log from plain PHP script', null, 'scripts/manual', 'debug');
+```
+
+---
+
+## ⚠️ Exception Logging
+
+```php
+try {
+    throw new \Exception('Something failed!');
+} catch (\Throwable $e) {
+    $logger->record($e, null, 'errors/runtime', 'error');
+}
+```
+
+---
+
+## 📣 Static Logging (recordStatic)
+
+You can also log **without creating an object** using:
+
+```php
+Logger::recordStatic(
+    Throwable|string|array $message,
+    ServerRequestInterface $request = null,
+    string $logFile = 'app',
+    string $level = 'info',
+    string $extension = 'log'
+);
+```
+
+### ✅ Example
+
+```php
+use Maatify\SlimLogger\Log\Logger;
+
+Logger::recordStatic('Maintenance mode enabled.', null, 'system/flags', 'info');
+```
+
+### ⚠️ Static Exception Log
+
+```php
+try {
+    throw new \Exception("Crash on startup");
+} catch (\Throwable $e) {
+    Logger::recordStatic($e, null, 'boot/errors', 'error');
+}
+```
+
+---
+
+## 🔍 Log File Output
+
+```
+/logs/
+└── 24/
+    └── 04/
+        └── 18/
+            └── system_flags_response_info_20250418AM.log
+```
+
+---
+
+## ⚙️ Optional Configuration
+
+| Option      | Default        | Description                        |
+|-------------|----------------|------------------------------------|
+| `Path`      | `project/logs` | Base log directory (via `Path`)    |
+| `Extension` | `.log`         | File extension                     |
+
+---
+
+## 🧪 Testing
+
+Run locally:
+
+```bash
+composer test
+```
+
+### ✅ GitHub CI
+
+See `.github/workflows/run-tests.yml`  
+Every push or PR runs tests automatically using PHPUnit.
+
+---
+
+## 📄 License
+
+[MIT License](./LICENSE) © 2025 [Maatify.dev](https://maatify.dev)
+
+---
+
+## 🙋‍♂️ Questions or Feedback?
+
+- 🐙 GitHub: [github.com/maatify/slim-logger](https://github.com/maatify/slim-logger)
+
+
+## 🚀 Features
+
+- ✅ PSR-7 request-aware logging (integrates with Slim Framework)
+- ✅ Logs to file in JSON format
 - ✅ Includes log **levels** (`info`, `debug`, `warning`, `error`)
 - ✅ File names include log level
 - ✅ Date-based folder structure
