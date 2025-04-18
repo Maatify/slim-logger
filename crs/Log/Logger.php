@@ -24,6 +24,7 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class Logger
 {
+    private static Logger $instance;
     private string $logRoot;
     private string $extension;
 
@@ -77,6 +78,21 @@ class Logger
                     . '_response_' . $level . '_' . date("YmdA") . '.' . $this->extension;
 
         file_put_contents($filename, $json . PHP_EOL, FILE_APPEND);
+    }
+
+    public static function recordStatic(
+        Throwable|string|array $message,
+        ServerRequestInterface $request = null,
+        string $logFile = 'app',
+        string $level = 'info',
+        string $extension = 'log'
+    ): void {
+        if (is_null(self::$instance)) {
+            $basePath = dirname(__DIR__, 3); // Default root for logs
+            self::$instance = new self(new \Maatify\SlimLogger\Store\File\Path($basePath), $extension);
+        }
+
+        self::$instance->record($message, $request, $logFile, $level);
     }
 
     public function getLogFilePath(string $action, string $level = 'info', string $subFolder = 'app'): string

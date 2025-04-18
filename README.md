@@ -11,7 +11,9 @@
 [![Monthly Downloads](https://img.shields.io/packagist/dm/maatify/slim-logger)][pkg-stats]
 [![Total Downloads](https://img.shields.io/packagist/dt/maatify/slim-logger)][pkg-stats]
 [![Stars](https://img.shields.io/packagist/stars/maatify/slim-logger)](https://github.com/maatify/slim-logger/stargazers)
+
 [![Tests](https://github.com/maatify/slim-logger/actions/workflows/run-tests.yml/badge.svg)](https://github.com/maatify/slim-logger/actions)
+
 **Maatify Slim Logger** is a lightweight, PSR-7 compatible, Slim-friendly structured logger for PHP applications. It is part of the modular [Maatify](https://maatify.dev) ecosystem.
 
 ---
